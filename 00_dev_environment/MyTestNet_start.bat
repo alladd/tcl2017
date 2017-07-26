@@ -1,0 +1,1 @@
+geth --identity "MyTestNet" --rpc --rpcport "8080" --rpccorsdomain "*" --datadir "C:\Users\alladd\AppData\Roaming\Ethereum\mytestnet" --port "30303" --nodiscover --rpcapi "db,eth,net,web3" --networkid 1999 console
