@@ -1,0 +1,51 @@
+<!doctype>
+<html>
+
+<head>
+<script type="text/javascript" src="/home/kangjsam/bower_components/web3/dist/web3.js"></script>
+</head>
+<body>
+    <h1>후보자별 투표진행확인</h1>
+    <p>김길동 0xcc85741887c5675d2c60cf834fbd7b81c15c4099</p>
+    <p>박길동 0x44f6d410a9115ec4fc2b206d1e9096101c7b1ecd</p>
+
+    <label for="candidate">후보자</label>
+    <input id="candidate" ></input><br><br>
+
+    <div id='vote'>
+        <button type="button" onClick="getCanVote()">체크</button>
+    </div>
+
+    <p id='result1'></p>
+    
+<script type="text/javascript">
+
+var Web3 = require('web3');
+var web3 = new Web3();
+
+web3.setProvider(new web3.providers.HttpProvider("http://10.0.2.10:8541"));
+
+
+function getCanVote() {
+
+var abi  =[{"constant":true,"inputs":[],"name":"getvc","outputs":[{"name":"","type":"uint256"}],"payable":false,"type":"function"},
+           {"constant":false,"inputs":[{"name":"w","type":"uint256"}],"name":"setvc","outputs":[],"payable":true,"type":"function"}];
+           
+
+// creation of contract object
+var MyVote1 = web3.eth.contract(abi);
+
+// initiate contract for an address
+var MyVoteIns1 = MyVote1.at(document.getElementById('candidate').value);
+
+//  getWeight function
+MyVoteIns1.getvc(function(e,r) {
+                        console.log("result1 :"+r);
+                        document.getElementById('result1').innerHTML = r;
+                    });                        
+}
+
+</script>
+</body>
+</html>
+

@@ -1,0 +1,87 @@
+<!doctype>
+<html>
+
+<head>
+<script type="text/javascript" src="/home/kangjsam/bower_components/web3/dist/web3.js"></script>
+</head>
+<body>
+    <h1>투표</h1>
+    <p>선거코드 : 0x70aae1610654d5e4fdf5b60a17929fd6ca169728</p>
+    <p>후보자 </p>
+    <p>김길동 0xcc85741887c5675d2c60cf834fbd7b81c15c4099</p>
+    <p>박길동 0x44f6d410a9115ec4fc2b206d1e9096101c7b1ecd</p>
+    <p>유권자 </p>
+    <P>0x41a1a3947183814ee55d779b93c652f4d43ee5b1</p>
+    <P>0xd7677d262b9c640b3d43b8df8ec470ae2ccf56a3</p>
+    <P>0x2afa87c0c075675f55d8af8aebd9c61c256c42d9</p>
+    <P>0x90f3356090a6137b42146b50785cdd6baf369443</p> 
+
+    <label for="votetype">투표유형</label>
+    <input id="votetype" ></input><br><br>
+    <label for="voter">유권자</label>
+    <input id="voter" ></input><br><br>
+    <label for="candidate">후보자</label>
+    <input id="candidate" ></input><br><br>
+
+    <div id='vote'>
+        <button type="button" onClick="getVote()">체크</button>
+         <button type="button" onClick="setVote()">선택</button>
+    </div>
+
+    <p id='result1'></p>
+    <p id='result2'></p>
+    
+<script type="text/javascript">
+
+var Web3 = require('web3');
+var web3 = new Web3();
+
+web3.setProvider(new web3.providers.HttpProvider("http://10.0.2.10:8541"));
+
+
+function getVote() {
+
+var abi  =[{"constant":true,"inputs":[],"name":"getWeight","outputs":[{"name":"","type":"uint256"}],"payable":false,"type":"function"},
+           {"constant":false,"inputs":[{"name":"votecntraddr","type":"address"},{"name":"cancntraddr","type":"address"}],"name":"setvote","outputs":[],"payable":true,"type":"function"}];
+           
+
+// creation of contract object
+var MyVote1 = web3.eth.contract(abi);
+
+// initiate contract for an address
+var MyVoteIns1 = MyVote1.at(document.getElementById('voter').value);
+
+//  getWeight function
+MyVoteIns1.getWeight(function(e,r) {
+                        console.log("result1 :"+r);
+                        document.getElementById('result1').innerHTML = r;
+                    });                        
+}
+    
+function setVote() {
+var abi  =[{"constant":true,"inputs":[],"name":"getWeight","outputs":[{"name":"","type":"uint256"}],"payable":false,"type":"function"},
+           {"constant":false,"inputs":[{"name":"votecntraddr","type":"address"},{"name":"cancntraddr","type":"address"}],"name":"setvote","outputs":[],"payable":true,"type":"function"}];
+           
+// creation of contract object
+var MyVote2 = web3.eth.contract(abi);
+
+// unlock
+web3.personal.unlockAccount(web3.eth.coinbase,'3');
+
+// initiate contract for an address
+var MyVoteIns2 = MyVote2.at(document.getElementById('voter').value);
+                         
+MyVoteIns2.setvote(document.getElementById('votetype').value,
+                  document.getElementById('candidate').value, 
+                  {from:web3.eth.coinbase ,gas:1000000}, 
+                  function(e,r) {
+                      console.log("result2 :"+r);
+                      document.getElementById('result2').innerHTML = r;
+                  });                           
+}
+
+
+</script>
+</body>
+</html>
+

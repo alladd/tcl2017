@@ -1,0 +1,50 @@
+<!doctype>
+<html>
+
+<head>
+<script type="text/javascript" src="/home/kangjsam/bower_components/web3/dist/web3.js"></script>
+</head>
+<body>
+    <h1>투표진행확인</h1>
+    <p>투표유형 : 0x70aae1610654d5e4fdf5b60a17929fd6ca169728</p>
+
+    <label for="votetype">투표유형</label>
+    <input id="votetype" ></input><br><br>
+
+    <div id='vote'>
+        <button type="button" onClick="getTotVote()">체크</button>
+    </div>
+
+    <p id='result1'></p>
+    
+<script type="text/javascript">
+
+var Web3 = require('web3');
+var web3 = new Web3();
+
+web3.setProvider(new web3.providers.HttpProvider("http://10.0.2.10:8541"));
+
+
+function getTotVote() {
+
+var abi  =[{"constant":true,"inputs":[],"name":"gettotvote","outputs":[{"name":"","type":"uint256"}],"payable":false,"type":"function"},{"constant":true,"inputs":[],"name":"getvoteend","outputs":[{"name":"","type":"uint256"}],"payable":false,"type":"function"},
+           {"constant":false,"inputs":[],"name":"setvoteend","outputs":[],"payable":true,"type":"function"},{"constant":false,"inputs":[{"name":"cancntraddr","type":"address"},{"name":"w","type":"uint256"}],"name":"settotvote","outputs":[],"payable":true,"type":"function"}];
+           
+
+// creation of contract object
+var MyVote1 = web3.eth.contract(abi);
+
+// initiate contract for an address
+var MyVoteIns1 = MyVote1.at(document.getElementById('votetype').value);
+
+//  getWeight function
+MyVoteIns1.gettotvote(function(e,r) {
+                        console.log("result1 :"+r);
+                        document.getElementById('result1').innerHTML = r;
+                    });                        
+}
+
+</script>
+</body>
+</html>
+
