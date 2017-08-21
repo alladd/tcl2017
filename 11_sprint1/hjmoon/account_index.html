@@ -1,0 +1,256 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="CACHE-CONTROL" content="NO-CACHE">
+  <!--link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/milligram/1.2.3/milligram.min.css"-->
+  <title>Sprint 1</title>
+  <style>
+    body {margin-left:50px;}
+    #storedData {width: 200px; font-size:100%; margin-right:10px;}
+    #newValue {width: 200px; margin-right:10px; text-align:right;}
+  </style>
+</head>
+<body>
+<h3>A영역</h3>
+
+  <!--li>컨트랙트 주소: <span id="contractAddr"></span></li-->
+   LastBlockNumber: <span id="lastBlock"></span><br><br>
+   Address: <input id="accountAddr" type="text" size="40"></input><br>
+   Balance: <span id="storedData" width="30"></span> Eth
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<button onclick="getValue()">잔액조회</button>
+  <!--li><input id="newValue" type="text"><button onclick="setValue()">새 값으로 저장하기</button>
+      <div id="result"></div></li-->
+
+<br><br><br><br><br><br>
+
+<h3>B영역</h3>
+  <table border=1 width="80%">
+    <tr align="center">
+      <td> side </td>
+      <td> address </td>
+      <td> 수량 </td>
+      <td> 옵션 </td>
+      <td> 체결가(ETH) </td>
+      <td> 종결가(ETH) </td>
+    </tr>
+    <tr align="center">
+      <td> A </td>
+      <td> <input type="text" id="a_address" size="40"> </td>
+      <td> <input type="text" id="a_eth"> &nbsp;eth</td>
+      <td> <input type="radio" name="a_option" value="Increase"> Increase
+           <input type="radio" name="a_option" value="Decrease">  Decrease <br>
+      </td>
+      <td rowspan="2"> <input type="text" id="initial_price" size="10">KRW</td>
+      <td rowspan="2"> <input type="text" id="final_price" size="10">KRW</td>
+    </tr>
+    <tr align="center">
+      <td> B </td>
+      <td> <input type="text" id="b_address" size="40"> </td>
+      <td> <input type="text" id="b_eth"> &nbsp;eth</td>
+      <td> <input type="radio" name="b_option" value="Increase" > Increase
+           <input type="radio" name="b_option" value="Decrease">  Decrease <br>
+      </td>
+    </tr>
+  </table>
+
+  <br><BR>
+  <button onclick="getCurrentPriceEth()">현시세Update</button>
+</body>
+
+<!--
+컨트랙트 소스
+<script src="https://gist.github.com/atomrigs/7c633570496b79623bed5d1286f93f3a.js"></script>
+
+HTML 소스<br>
+<a href="https://github.com/atomrigs/atomrigs.github.io/blob/master/simplestorage.html">https://github.com/atomrigs/atomrigs.github.io/blob/master/simplestorage.html</a>;
+<br><br>
+-->
+
+
+<script src="./js/web3.js-develop/dist/web3.js"></script>
+<!--script src="https://cdn.rawgit.com/ethereum/web3.js/develop/dist/web3.js"></script-->
+<script src="./js/jquery-3.2.1.js"></script>
+<script>
+
+//  var coinbaseAddress = '';
+//var contractAddress = '0xc5244053ecA508a11951400fc7Af28738Fd0ce77';
+//var abi = [{"constant":false,"inputs":[{"name":"x","type":"uint256"}],"name":"set","outputs":[],"payable":false,"type":"function"},{"constant":true,"inputs":[],"name":"get","outputs":[{"name":"","type":"uint256"}],"payable":false,"type":"function"}];
+//var simpleStorageContract;
+//var simpleStorage;
+
+/**
+ 거래소 시세 변수 , function
+     1. 코빗
+     BTC : https://api.korbit.co.kr/v1/ticker/detailed
+     ETH : https://api.korbit.co.kr/v1/ticker/detailed?currency_pair=eth_krw
+
+     2. 빗썸
+     BTC : https://api.bithumb.com/public/ticker/BTC
+     ETH : https://api.bithumb.com/public/ticker/ETH
+
+     3. POLONIEX
+     https://poloniex.com/public?command=returnTicker
+
+     4. BITTREX
+     ETH : https://bittrex.com/api/v1.1/public/getmarketsummary?market=btc-eth
+
+     5. ALLCOIN
+     ETH : https://api.allcoin.com/api/v1/ticker?symbol=eth_btc
+
+     6. LIQUI
+     ETH : https://api.liqui.io/api/3/ticker/eth_btc
+
+     7. COINMARKETCAP
+     http://coinmarketcap-nexuist.rhcloud.com/api/eth
+ */
+var priceJsonKorbit;
+
+function getCurrentPriceEth4() {
+
+   priceJsonKorbit = JSON.parse('https://api.korbit.co.kr/v1/ticker/detailed?currency_pair=eth_krw');
+   console.log(priceJsonKorbit.last);
+ }
+
+ function getCurrentPriceEth() {
+   $.getJSON(
+       'https://api.korbit.co.kr/v1/ticker/detailed?currency_pair=eth_krw',
+       function getCurrentPriceEth(data) {
+         priceJsonKorbit = JSON.parse(data);
+         console.log(priceJsonKorbit.last);
+       }
+   );
+ }
+
+
+function getCurrentPriceEth3() {
+   $.ajax({
+   url: 'https://api.korbit.co.kr/v1/ticker/detailed?currency_pair=eth_krw',
+   type: "get",
+   dataType: 'jsonp',
+   success: function(data) {
+     console.log("success called");
+   },
+   error: function() {
+      //Error handling code
+      alert('getCurrentPriceEth() Failed, address' );
+   }
+
+ });
+ }
+
+ function getCurrentPriceEth5() {
+   priceJsonKorbit = convertToCorsUrl('https://api.korbit.co.kr/v1/ticker/detailed?currency_pair=eth_krw');
+   console.log(priceJsonKorbit);
+ }
+
+function convertToCorsUrl(url){
+    var protocol = (window.location.protocol === 'http:' ? 'http:' : 'https:');
+    console.log(protocol);
+    return protocol + '//cors-anywhere.herokuapp.com/' + url;
+}
+
+function get_json(url, cb) {
+  $.ajax({
+    url: url,
+  }).done(function(data){
+    if(cb) cb(data);
+  }).fail(function(){
+    if(cb) cb(null);
+  });
+}
+
+
+/*
+  시세가져오기 관련 function end
+*/
+
+
+
+
+window.addEventListener('load', function() {
+
+  // Checking if Web3 has been injected by the browser (Mist/MetaMask)
+  if (typeof web3 !== 'undefined') {
+    // Use Mist/MetaMask's provider
+    window.web3 = new Web3(web3.currentProvider);
+  } else {
+    console.log('No web3? You should consider trying MetaMask!')
+    // fallback - use your fallback strategy (local node / hosted node + in-dapp id mgmt / fail)
+    window.web3 = new Web3(new Web3.providers.HttpProvider("http://localhost:8545"));
+  }
+  // Now you can start your app & access web3 freely:
+  startApp();
+});
+
+function startApp() {
+  //simpleStorageContract = web3.eth.contract(abi);
+  //simpleStorage = simpleStorageContract.at(contractAddress);
+  //document.getElementById('contractAddr').innerHTML = getLink(contractAddress);
+  web3.eth.getAccounts(function(e,r){
+    document.getElementById('accountAddr').value = r;
+
+  });
+
+  //web3.eth.getCoinbase(function(e,r){
+  //  coinbaseAddress = r;
+  //});
+
+  getValue();
+}
+
+
+
+function getLink(addr) {
+  return '<a target="_blank" href=https://testnet.etherscan.io/address/' + addr + '>' + addr +'</a>';
+}
+
+function getValue() {
+  /*simpleStorage.get(function(e,r){
+    document.getElementById('storedData').innerHTML=r.toNumber();
+
+  });*/
+ if( document.getElementById('accountAddr').value == '')
+  return;
+
+ console.log("Address =[" + document.getElementById('accountAddr').value + "]");
+  web3.eth.getBalance( document.getElementById('accountAddr').value , function(error,result){
+    if(!error) {
+      var displayedBalAsEth = result.toNumber() / 1000000000000000000;
+      document.getElementById('storedData').innerHTML=displayedBalAsEth;
+    } else {
+        console.error(error);
+    }
+  });
+
+
+  web3.eth.getBlockNumber(function(e,r){
+    document.getElementById('lastBlock').innerHTML = r;
+  });
+}
+
+/**function setValue() {
+
+  var newValue = document.getElementById('newValue').value;
+  var txid
+  simpleStorage.set(newValue, function(e,r){
+    document.getElementById('result').innerHTML = 'Transaction id: ' + r + '<span id="pending" style="color:red;">(Pending)</span>';
+    txid = r;
+  });
+  var filter = web3.eth.filter('latest');
+  filter.watch(function(e, r) {
+    getValue();
+    web3.eth.getTransaction(txid, function(e,r){
+      if (r != null && r.blockNumber > 0) {
+        document.getElementById('pending').innerHTML = '(기록된 블록: ' + r.blockNumber + ')';
+        document.getElementById('pending').style.cssText ='color:green;';
+        document.getElementById('storedData').style.cssText ='color:green; font-size:300%;';
+        filter.stopWatching();
+      }
+   });
+ });
+}
+*/
+
+</script>
+</html>
