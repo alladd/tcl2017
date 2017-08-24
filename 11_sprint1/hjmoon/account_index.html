@@ -54,8 +54,29 @@
     </tr>
   </table>
 
+  <br><br><br><br><br><br>
+
+  <h3>ETH/KRW last Price</h3>
+    <table border=1 width="80%">
+      <tr align="center">
+        <td> 거래소 </td>
+        <td> korbit</td>
+        <td> coinone </td>
+        <td> bitthumb </td>
+        <td> 평균가(ETH) </td>
+
+      </tr>
+      <tr align="center">
+        <td> Lastprice </td>
+        <td> <input type="text" id="eth_price_korbit" > </td>
+        <td> <input type="text" id="eth_price_coinone"> </td>
+        <td> <input type="text" id="eth_price_bitthumb"> </td>
+        <td> <input type="text" id="eth_price_average"> </td>
+      </tr>
+    </table>
+
   <br><BR>
-  <button onclick="getCurrentPriceEth()">현시세Update</button>
+  <button onclick="updateCurrentPrice()">현시세Update</button>
 </body>
 
 <!--
@@ -103,62 +124,71 @@ HTML 소스<br>
 
      7. COINMARKETCAP
      http://coinmarketcap-nexuist.rhcloud.com/api/eth
+
+     8. Coinone
+     https://api.coinone.co.kr/ticker?currency=eth
  */
-var priceJsonKorbit;
+var priceKorbit;   //last
+var priceBitthumb; //closing_price
+var priceCoinone;  //last
+var priceAverage = 0;
 
-function getCurrentPriceEth4() {
-
-   priceJsonKorbit = JSON.parse('https://api.korbit.co.kr/v1/ticker/detailed?currency_pair=eth_krw');
-   console.log(priceJsonKorbit.last);
- }
-
- function getCurrentPriceEth() {
-   $.getJSON(
-       'https://api.korbit.co.kr/v1/ticker/detailed?currency_pair=eth_krw',
-       function getCurrentPriceEth(data) {
-         priceJsonKorbit = JSON.parse(data);
-         console.log(priceJsonKorbit.last);
-       }
-   );
- }
+var urlKorbit       = "https://api.korbit.co.kr/v1/ticker/detailed?currency_pair=eth_krw";
+var urlBitthumb     = "https://api.bithumb.com/public/ticker/ETH";
+var urlCoinone      = "https://api.coinone.co.kr/ticker?currency=eth";
 
 
-function getCurrentPriceEth3() {
+function updateCurrentPrice() {
+  getCurrentPriceEth( urlKorbit);
+  getCurrentPriceEth( urlBitthumb);
+  getCurrentPriceEth( urlCoinone);
+}
+
+function getAverageCurrentPrice(){
+  priceAverage = Math.round( ( Number(priceKorbit) + Number(priceBitthumb) + Number(priceCoinone) ) / 3 ) ;
+  document.getElementById('eth_price_average').value = priceAverage;
+  document.getElementById('initial_price').value = priceAverage;
+}
+
+function getCurrentPriceEth(urlString) {
+   $.support.cors = true;
    $.ajax({
-   url: 'https://api.korbit.co.kr/v1/ticker/detailed?currency_pair=eth_krw',
-   type: "get",
-   dataType: 'jsonp',
-   success: function(data) {
-     console.log("success called");
+   url: urlString,
+   type: "GET",
+   //contentType: "application/json; charset=utf-8",
+   contentType: "application/x-www-form-urlencoded",
+   dataType: 'json',
+   success: function(returndata) {
+     console.log("success called" + urlString);
+
+     if( urlString == urlKorbit) {
+        priceKorbit = returndata.last;
+        document.getElementById('eth_price_korbit').value  = priceKorbit;
+     }else if( urlString == urlCoinone) {
+        priceCoinone = returndata.last;
+        document.getElementById('eth_price_coinone').value  = priceCoinone;
+     }else if( urlString == urlBitthumb) {
+        priceBitthumb = returndata.data.closing_price;
+        document.getElementById('eth_price_bitthumb').value  = priceBitthumb;
+     }
+
+     if( priceKorbit != NaN &&
+         priceCoinone != NaN &&
+         priceBitthumb != NaN
+     ){
+       getAverageCurrentPrice();
+     }
+
    },
-   error: function() {
+   error: function(xhr, status, error) {
       //Error handling code
-      alert('getCurrentPriceEth() Failed, address' );
+      alert('getCurrentPriceEth() Failed' + status );
    }
 
  });
  }
 
- function getCurrentPriceEth5() {
-   priceJsonKorbit = convertToCorsUrl('https://api.korbit.co.kr/v1/ticker/detailed?currency_pair=eth_krw');
-   console.log(priceJsonKorbit);
- }
 
-function convertToCorsUrl(url){
-    var protocol = (window.location.protocol === 'http:' ? 'http:' : 'https:');
-    console.log(protocol);
-    return protocol + '//cors-anywhere.herokuapp.com/' + url;
-}
-
-function get_json(url, cb) {
-  $.ajax({
-    url: url,
-  }).done(function(data){
-    if(cb) cb(data);
-  }).fail(function(){
-    if(cb) cb(null);
-  });
-}
 
 
 /*
