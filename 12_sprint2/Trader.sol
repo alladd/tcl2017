@@ -10,7 +10,7 @@ contract TraderMarket {
       State      state;                                  //      상태
       address    investor;                               //      investor주문
       address    hedger;                                 //      hedger주문
-      uint        timelimit;                              //      예치기간
+      uint       timelimit;                              //      예치기간
       uint       createdPrice;                           //      생성시세
       uint       createdTime;                            //      생성시간
       uint       signedPrice;                            //      체결시세
