@@ -2,6 +2,9 @@ pragma solidity ^0.4.0;
 
 contract TraderMarket {
 
+    /**
+      Definition - Struct, Enum, etc
+    */
     enum State    { Created, Signed, Calculated }      //      상태 : 대기, 체결, 정산종료
     enum Option   { Invest, Hedge }                    //      옵션 : 투자, 회피
 
@@ -45,7 +48,7 @@ contract TraderMarket {
     }
 
 
-    function createOrder( Option  _option, uint _timelimit, uint _createdPrice ) payable returns ( uint _orderID ){
+    function createOrderBook( Option  _option, uint _timelimit, uint _createdPrice ) payable returns ( uint _orderID ){
 
       _orderID = numOrderBook++;
       orderbooks[_orderID].orderID = _orderID;
@@ -62,5 +65,14 @@ contract TraderMarket {
       orderbooks[_orderID].createdPrice = _createdPrice;
 
     }
+
+    function signOrderBook( ) payable {
+
+    }
+
+    function calcuateOrderBook( ) payable {
+
+    }
+
 
 }
