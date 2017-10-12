@@ -8,7 +8,7 @@
   <style>
     body {margin-left:50px;}
     #storedData, #storedData2 {font-size:300%; margin-right:10px;}
-    #newValue, #orderIndex, #orderInf1, #orderInf2{width: 200px; margin-right:10px; text-align:right;}
+    #time, #money, #orderIndex, #orderInf1, #orderInf2{width: 100px; margin-right:10px; text-align:right;}
   </style>
 </head>
 
@@ -18,10 +18,20 @@
   <li>컨트랙트 주소: <span id="contractAddr"></span></li>
   <li>내 어카운트 주소: <span id="accountAddr"></span></li>
   <li>주문대장의 개수 : <span id="storedData"></span></li>
-  <li>금액 : <input id="newValue" type="text"><button onclick="setValue()">주문생성</button>
+  <li>신규 주문 생성 : <br>
+      OPTION
+      <select id="type" style="width:200px">
+        <option value=0>Investor</<option>
+        <option value=1>Hedge</<option>
+      </select>
+      만료시간     <input id="time" type="text">
+      생성금액     <input id="money" type="text">
+
+      <button onclick="setValue()">주문생성</button>
   <div id="result"></div></li>
+  <br><br>
   <li>주문번호 : <input id="orderIndex" type="text"> <button onclick="getValue()">정보받기</button> (현재블록: <span id="lastBlock"></span>) </li>
-  <li>주문대장의 초과시간 : <span id="orderInf1"></span></li>
+  <li>주문대장의 만료시간 : <span id="orderInf1"></span></li>
   <li>주문대장의 금액 : <span id="orderInf2"></span></li>
 </ul>
 
@@ -80,7 +90,7 @@ function getValue() {
 
   simpleStorage.getOrderInf(orderIndex, function(e,r){
     document.getElementById('orderInf1').innerHTML=r[0].toNumber();
-    document.getElementById('orderInf2').innerHTML=r[1].toNumber()
+    document.getElementById('orderInf2').innerHTML=r[1].toNumber();
   });
 
   web3.eth.getBlockNumber(function(e,r){
@@ -90,11 +100,14 @@ function getValue() {
 }
 
 function setValue() {
-  var newValue = document.getElementById('newValue').value;
+  var type = document.getElementById('type').value;
+  var time = document.getElementById('time').value;
+  var money = document.getElementById('money').value;
+
   var txid
 
   //solidity set함수
-  simpleStorage.createOrderBook(0, 300, newValue, function(e,r){
+  simpleStorage.createOrderBook(type, time, money, function(e,r){
     document.getElementById('result').innerHTML = 'Transaction id: ' + r + '<span id="pending" style="color:red;">(Pending)</span>';
     txid = r;
   });
