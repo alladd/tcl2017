@@ -1,0 +1,205 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ko">
+<head>
+<meta http-equiv="Content-Type" content="text/html;charset=UTF-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+<title></title>
+<style>
+table, table td, table th{border-collapse:collapse;}
+#contents {width:1000px;margin:0 auto;overflow:hidden;clear:both; position: relative;}
+.content_sub h3 {padding-left:23px; background:url("./img/bg_h3.gif") no-repeat 0 2px; font-size:20px; font-weight:bold;}
+.content_sub .table_list table {width:950px; margin-left:23px; margin-top:5px;}
+.content_sub .table_list td {border-top:1px solid #e1e1e1;}
+.content_sub .table_list th {border-top:1px solid #e1e1e1;}
+.content_sub .table_list tr {border-bottom:1px dotted #ccc;}
+</style>
+<link rel="stylesheet" type="text/css" href="./js/jquery-ui-1.11.4.custom/jquery-ui.css" />	<!-- 달력 -->
+</head>
+<body>
+<div id="contents">
+	<div style="" class="search_top">
+		<b>이더리움 마켓에 오신것을 환영합니다.<br/><br/><br/></b>
+	</div>
+
+	<div class="content_sub">
+
+		<h3>ETH/KRW last Price</h3>
+			<div class="table_list">
+		    <table>
+		      <tr align="center">
+		        <td> 거래소 </td>
+		        <td> korbit</td>
+		        <td> coinone </td>
+		        <td> bitthumb </td>
+		        <td> 평균가(ETH) </td>
+
+		      </tr>
+		      <tr align="center">
+		        <td> Lastprice </td>
+		        <td> <input type="text" id="eth_price_korbit" > </td>
+		        <td> <input type="text" id="eth_price_coinone"> </td>
+		        <td> <input type="text" id="eth_price_bitthumb"> </td>
+		        <td> <input type="text" id="eth_price_average"> </td>
+		      </tr>
+		    </table>
+			</div>
+	  <br><BR>
+	  <button onclick="updateCurrentPrice()">현시세Update</button>
+
+
+		<h3>OrderBook 목록</h3>
+		<div class="table_list">
+			<table>
+				<colgroup>
+					<col width="60"/>
+					<col width="110"/>
+					<col width="100" />
+					<col width="100" />
+					<col width="90" />
+					<col width="110" />
+					<col width="180"/>
+					<col width="100"/>
+					<col width="180" />
+					<col width="100" />
+				</colgroup>
+				<tbody>
+					<tr>
+						<th rowspan="2">OrderID</th>
+						<th rowspan="2">상태</th>
+						<th rowspan="2">Investor</th>
+						<th rowspan="2">Hedger</th>
+						<th rowspan="2">예치Eth</th>
+						<th rowspan="2">정산목표일</th>
+						<th colspan="2">생성(체결)정보</th>
+						<th colspan="2">정산정보</th>
+					</tr>
+					<tr>
+						<th>일시</th>
+						<th>시세</th>
+						<th>일시</th>
+						<th>시세</th>
+					</tr>
+
+					<!-- DATA -->
+					<tr>
+						<td>1</td>
+						<td>체결대기</td>
+						<td>0x63JAHVB940….</td>
+						<td>waiting….</td>
+						<td>100</td>
+						<td>2017.10.28</td>
+						<td>2017.10.11 14:30</td>
+						<td>332,550</td>
+						<td></td>
+						<td></td>
+					</tr>
+					<tr>
+						<td>2</td>
+						<td>체결</td>
+						<td>0x63JAHVB940….</td>
+						<td>0x11JDJAN…..</td>
+						<td>200</td>
+						<td>2017.11.15</td>
+						<td>2017.10.01 09:45</td>
+						<td>278,100</td>
+						<td></td>
+						<td></td>
+					</tr>
+
+				</tbody>
+			</table>
+		</div>
+		<br/><br/>
+		<h3>거래</h3>
+		<div class="table_list">
+			<table>
+				<tr>
+					<td>내 지갑 주소 </td>
+					<td>0x28JAHVK….</td>
+				</tr>
+				<tr>
+					<td>잔고  </td>
+					<td>356 Eth(124,600,000원) </td>
+				</tr>
+			</table>
+		</div>
+		<h3>신규</h3>
+		<div class="table_list">
+			<table>
+				<colgroup>
+					<col width="5%"/>
+					<col width="20%"/>
+					<col width="30%"/>
+					<col width="30%" />
+					<col width="15%" />
+				</colgroup>
+				<tr height="80px">
+					<td></td>
+					<td>
+					Option &nbsp;&nbsp;
+					<select id="type">
+						<option value="0">Investor</option>
+						<option value="1">Hedger</option>
+					</select>
+					</td>
+					<td>정산목표일 <input type="text" id="dueDate" size="10"/></td>
+					<td>주문수량 <input type="text" id="cnt" size="10"/></td>
+					<td><button>신규주문</button></td>
+				</tr>
+			</table>
+		</div>
+		<h3>체결/취소</h3>
+		<div class="table_list">
+			<table>
+				<colgroup>
+					<col width="3%"/>
+					<col width="10%"/>
+					<col width="10%"/>
+					<col width="10%"/>
+					<col width="10%"/>
+					<col width="10%"/>
+					<col width="10%"/>
+					<col width="10%"/>
+					<col width="10%"/>
+					<col width="10%"/>
+					<col width="10%"/>
+				</colgroup>
+				<tr>
+					<td></td>
+					<td align="right">OrderID	<br/><br/>	상태&nbsp;	</td>
+					<td><div><input type="text" size="10"/></div>	<br/>	<div><input type="text" size="10"/></div></td>
+					<td align="right">Investor	<br/><br/>	Hedger&nbsp;	</td>
+					<td><div><input type="text" size="10"/></div>	<br/>	<div><input type="text" size="10"/></div></td>
+					<td align="right">정산목표일	<br/><br/>	예치수량&nbsp;	</td>
+					<td><div><input type="text" size="10"/></div>	<br/>	<div><input type="text" size="10"/></div></td>
+					<td align="right">생성일시 	<br/><br/>	생성시세&nbsp;	</td>
+					<td><div><input type="text" size="10"/></div>	<br/>	<div><input type="text" size="10"/></div></td>
+					<td><button>체결</button><br/><br/><button>취소</button></td>
+				</tr>
+			</table>
+		</div>
+	</div>
+ </div>
+
+<script type="text/javascript" src="./js/jquery-1.7.1.js"></script>
+<script type="text/javascript" src="./js/jquery-ui-1.11.4.custom/jquery-ui.min.js"></script>
+<script>
+	window.onload = function() {
+
+		$( "#dueDate" ).datepicker({
+			dateFormat: 'yy-mm-dd',
+			prevText: '이전 달',
+			nextText: '다음 달',
+			monthNames: ['1월','2월','3월','4월','5월','6월','7월','8월','9월','10월','11월','12월'],
+			monthNamesShort: ['1','2','3','4','5','6','7','8','9','10','11','12'],
+			dayNames: ['일요일','월요일','화요일','수요일','목요일','금요일','토요일'],
+			dayNamesShort: ['일','월','화','수','목','금','토'],
+			dayNamesMin: ['일','월','화','수','목','금','토'],
+			showMonthAfterYear: true,
+			yearSuffix: '년'
+		});
+
+	}
+</script>
+</body>
+</html>

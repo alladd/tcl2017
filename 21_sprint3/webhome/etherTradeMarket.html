@@ -1,0 +1,375 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ko">
+<head>
+<meta http-equiv="Content-Type" content="text/html;charset=UTF-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+<title></title>
+<style>
+table, table td, table th{border-collapse:collapse;}
+#contents {width:1000px;margin:0 auto;overflow:hidden;clear:both; position: relative;}
+.content_sub h3 {padding-left:23px; background:url("./img/bg_h3.gif") no-repeat 0 2px; font-size:20px; font-weight:bold;}
+.content_sub .table_list table {width:950px; margin-left:23px; margin-top:5px;}
+.content_sub .table_list td {border-top:1px solid #e1e1e1;}
+.content_sub .table_list th {border-top:1px solid #e1e1e1;}
+.content_sub .table_list tr {border-bottom:1px dotted #ccc;}
+</style>
+<link rel="stylesheet" type="text/css" href="./js/jquery-ui-1.11.4.custom/jquery-ui.css" />	<!-- 달력 -->
+</head>
+<body>
+<div id="contents">
+	<div style="" class="search_top">
+		<b>Ethereum 기반 금융거래 Market.<br/><br/><br/></b>
+	</div>
+
+	<div class="content_sub">
+
+		<h3>ETH/KRW last Price</h3>
+			<div class="table_list">
+		    <table>
+		      <tr align="center">
+		        <td> 거래소 </td>
+		        <td> korbit</td>
+		        <td> coinone </td>
+		        <td> bitthumb </td>
+		        <td> 평균가(ETH) </td>
+						<td> <button onclick="updateCurrentPrice()">시세 가져오기</button> </td>
+
+		      </tr>
+		      <tr align="center">
+		        <td> Lastprice </td>
+		        <td> <input type="text" id="eth_price_korbit"> </td>
+		        <td> <input type="text" id="eth_price_coinone"> </td>
+		        <td> <input type="text" id="eth_price_bitthumb"> </td>
+		        <td> <input type="text" id="eth_price_average"> </td>
+						<td> <input type="text" id="eth_price_lastupdated"> </td>
+		      </tr>
+		    </table>
+			</div>
+	  <br><BR>
+
+
+
+		<h3>OrderBook 목록</h3>
+		<div class="table_list">
+			<table>
+				<colgroup>
+					<col width="60"/>
+					<col width="110"/>
+					<col width="100" />
+					<col width="100" />
+					<col width="90" />
+					<col width="110" />
+					<col width="180"/>
+					<col width="100"/>
+					<col width="180" />
+					<col width="100" />
+				</colgroup>
+				<tbody>
+					<tr>
+						<th rowspan="2">OrderID</th>
+						<th rowspan="2">상태</th>
+						<th rowspan="2">Investor</th>
+						<th rowspan="2">Hedger</th>
+						<th rowspan="2">예치Eth</th>
+						<th rowspan="2">정산목표일</th>
+						<th colspan="2">생성(체결)정보</th>
+						<th colspan="2">정산정보</th>
+					</tr>
+					<tr>
+						<th>일시</th>
+						<th>시세</th>
+						<th>일시</th>
+						<th>시세</th>
+					</tr>
+
+					<!-- DATA -->
+					<tr>
+						<td>1</td>
+						<td>체결대기</td>
+						<td>0x63JAHVB940….</td>
+						<td>waiting….</td>
+						<td>100</td>
+						<td>2017.10.28</td>
+						<td>2017.10.11 14:30</td>
+						<td>332,550</td>
+						<td></td>
+						<td></td>
+					</tr>
+					<tr>
+						<td>2</td>
+						<td>체결</td>
+						<td>0x63JAHVB940….</td>
+						<td>0x11JDJAN…..</td>
+						<td>200</td>
+						<td>2017.11.15</td>
+						<td>2017.10.01 09:45</td>
+						<td>278,100</td>
+						<td></td>
+						<td></td>
+					</tr>
+
+				</tbody>
+			</table>
+		</div>
+		<br/><br/>
+		<h3>내정보</h3>
+		<div class="table_list">
+			<table>
+				<tr>
+					<td>내 지갑 주소 </td>
+					<td> <input type="text" id="accountAddr"> </td>
+				</tr>
+				<tr>
+					<td>잔고  </td>
+					<td> <input type="text" id="accountBal"> </td>
+				</tr>
+			</table>
+		</div>
+		<h3>신규주문생성</h3>
+		<div class="table_list">
+			<table>
+				<colgroup>
+					<col width="5%"/>
+					<col width="20%"/>
+					<col width="30%"/>
+					<col width="30%" />
+					<col width="15%" />
+				</colgroup>
+				<tr height="80px">
+					<td></td>
+					<td>
+					Option &nbsp;&nbsp;
+					<select id="type">
+						<option value="0">Investor</option>
+						<option value="1">Hedger</option>
+					</select>
+					</td>
+					<td>정산목표일 <input type="text" id="dueDate" size="10"/></td>
+					<td>주문수량 <input type="text" id="cnt" size="10"/></td>
+					<td><button>신규주문</button></td>
+				</tr>
+			</table>
+		</div>
+		<h3>주문체결/취소</h3>
+		<div class="table_list">
+			<table>
+				<colgroup>
+					<col width="3%"/>
+					<col width="10%"/>
+					<col width="10%"/>
+					<col width="10%"/>
+					<col width="10%"/>
+					<col width="10%"/>
+					<col width="10%"/>
+					<col width="10%"/>
+					<col width="10%"/>
+					<col width="10%"/>
+					<col width="10%"/>
+				</colgroup>
+				<tr>
+					<td></td>
+					<td align="right">OrderID	<br/><br/>	상태&nbsp;	</td>
+					<td><div><input type="text" size="10"/></div>	<br/>	<div><input type="text" size="10"/></div></td>
+					<td align="right">Investor	<br/><br/>	Hedger&nbsp;	</td>
+					<td><div><input type="text" size="10"/></div>	<br/>	<div><input type="text" size="10"/></div></td>
+					<td align="right">정산목표일	<br/><br/>	예치수량&nbsp;	</td>
+					<td><div><input type="text" size="10"/></div>	<br/>	<div><input type="text" size="10"/></div></td>
+					<td align="right">생성일시 	<br/><br/>	생성시세&nbsp;	</td>
+					<td><div><input type="text" size="10"/></div>	<br/>	<div><input type="text" size="10"/></div></td>
+					<td><button>체결</button><br/><br/><button>취소</button></td>
+				</tr>
+			</table>
+		</div>
+	</div>
+ </div>
+
+<script type="text/javascript" src="./js/jquery-1.7.1.js"></script>
+<script type="text/javascript" src="./js/jquery-ui-1.11.4.custom/jquery-ui.min.js"></script>
+<script>
+
+ var accountAddr = "";
+
+
+	window.onload = function() {
+
+		$( "#dueDate" ).datepicker({
+			dateFormat: 'yy-mm-dd',
+			prevText: '이전 달',
+			nextText: '다음 달',
+			monthNames: ['1월','2월','3월','4월','5월','6월','7월','8월','9월','10월','11월','12월'],
+			monthNamesShort: ['1','2','3','4','5','6','7','8','9','10','11','12'],
+			dayNames: ['일요일','월요일','화요일','수요일','목요일','금요일','토요일'],
+			dayNamesShort: ['일','월','화','수','목','금','토'],
+			dayNamesMin: ['일','월','화','수','목','금','토'],
+			showMonthAfterYear: true,
+			yearSuffix: '년'
+		});
+
+	}
+
+	/**
+		Datetype <-> unixTimeStamp 변환
+		frontend : date타입
+		backend : unixtimestamp으로 변환 후 function call
+	*/
+	function dateToUnixTimestamp( dateValue){
+		return Math.round( dateValue.getTime()/1000.0);
+	}
+
+	function unixTimeStampToDate( unixTimeStampValue){
+		return new Date( unixTimeStampValue * 1000);
+	}
+
+
+	function getEtherscanLink(addr) {
+	  return '<a target="_blank" href=https://testnet.etherscan.io/address/' + addr + '>' + addr +'</a>';
+	}
+
+	/**
+	 거래소 시세 변수 , function---------------------------------------------------
+
+	 CORS문제를 회피하기 위해 크롬 플러그인 설치가 필요(Allow-Control-Allow-Origin)
+	 미 설치시 코빗 시세 fetch불가, CORS이슈는 추후 처리
+	     1. 코빗
+	     BTC : https://api.korbit.co.kr/v1/ticker/detailed
+	     ETH : https://api.korbit.co.kr/v1/ticker/detailed?currency_pair=eth_krw
+
+	     2. 빗썸
+	     BTC : https://api.bithumb.com/public/ticker/BTC
+	     ETH : https://api.bithumb.com/public/ticker/ETH
+
+	     3. POLONIEX
+	     https://poloniex.com/public?command=returnTicker
+
+	     4. BITTREX
+	     ETH : https://bittrex.com/api/v1.1/public/getmarketsummary?market=btc-eth
+
+	     5. ALLCOIN
+	     ETH : https://api.allcoin.com/api/v1/ticker?symbol=eth_btc
+
+	     6. LIQUI
+	     ETH : https://api.liqui.io/api/3/ticker/eth_btc
+
+	     7. COINMARKETCAP
+	     http://coinmarketcap-nexuist.rhcloud.com/api/eth
+
+	     8. Coinone
+	     https://api.coinone.co.kr/ticker?currency=eth
+	 */
+	var priceKorbit;   //last
+	var priceBitthumb; //closing_price
+	var priceCoinone;  //last
+	var priceAverage = 0;
+	var lastChangeDate;
+
+	var urlKorbit       = "https://api.korbit.co.kr/v1/ticker/detailed?currency_pair=eth_krw";
+	var urlBitthumb     = "https://api.bithumb.com/public/ticker/ETH";
+	var urlCoinone      = "https://api.coinone.co.kr/ticker?currency=eth";
+
+
+	function updateCurrentPrice() {
+	  getCurrentPriceEth( urlKorbit);
+	  getCurrentPriceEth( urlBitthumb);
+	  getCurrentPriceEth( urlCoinone);
+	}
+
+	function getAverageCurrentPrice(){
+	  priceAverage = Math.round( ( Number(priceKorbit) + Number(priceBitthumb) + Number(priceCoinone) ) / 3 ) ;
+		lastChangeDate = new Date();
+	  document.getElementById('eth_price_average').value = priceAverage;
+	  //document.getElementById('initial_price').value = priceAverage;
+		document.getElementById('eth_price_lastupdated').value = lastChangeDate.toLocaleString();
+	}
+
+	function getCurrentPriceEth(urlString) {
+	   $.support.cors = true;
+	   $.ajax({
+	   url: urlString,
+	   type: "GET",
+	   //contentType: "application/json; charset=utf-8",
+	   contentType: "application/x-www-form-urlencoded",
+	   dataType: 'json',
+	   success: function(returndata) {
+	     console.log("success called" + urlString);
+
+	     if( urlString == urlKorbit) {
+	        priceKorbit = returndata.last;
+	        document.getElementById('eth_price_korbit').value  = priceKorbit;
+	     }else if( urlString == urlCoinone) {
+	        priceCoinone = returndata.last;
+	        document.getElementById('eth_price_coinone').value  = priceCoinone;
+	     }else if( urlString == urlBitthumb) {
+	        priceBitthumb = returndata.data.closing_price;
+	        document.getElementById('eth_price_bitthumb').value  = priceBitthumb;
+	     }
+
+	     if( priceKorbit != NaN &&
+	         priceCoinone != NaN &&
+	         priceBitthumb != NaN
+	     ){
+	       getAverageCurrentPrice();
+	     }
+
+	   },
+	   error: function(xhr, status, error) {
+	      //Error handling code
+	      alert('getCurrentPriceEth() Failed' + status );
+	   }
+
+	 });
+	 }
+
+	/*
+	  시세가져오기 관련 function end-----------------------------------------------
+	*/
+
+
+
+  /*
+		web3 Instance생성 및 initail Function Call
+	*/
+
+	window.addEventListener('load', function() {
+
+	  // Checking if Web3 has been injected by the browser (Mist/MetaMask)
+	  if (typeof web3 !== 'undefined') {
+	    // Use Mist/MetaMask's provider
+	    window.web3 = new Web3(web3.currentProvider);
+	  } else {
+	    console.log('No web3? You should consider trying MetaMask!')
+	    // fallback - use your fallback strategy (local node / hosted node + in-dapp id mgmt / fail)
+	    window.web3 = new Web3(new Web3.providers.HttpProvider("http://localhost:8545"));
+	  }
+	  // Now you can start your app & access web3 freely:
+	  startApp();
+	});
+
+	function startApp() {
+	  //simpleStorageContract = web3.eth.contract(abi);
+	  //simpleStorage = simpleStorageContract.at(contractAddress);
+	  //document.getElementById('contractAddr').innerHTML = getLink(contractAddress);
+	  web3.eth.getAccounts(function(e,r){
+	    document.getElementById('accountAddr').value = r;
+	  });
+	}
+
+	function getValue() {
+
+	 if( document.getElementById('accountAddr').value == '')
+	  return;
+
+	 console.log("Address =[" + document.getElementById('accountAddr').value + "]");
+	  web3.eth.getBalance( document.getElementById('accountAddr').value , function(error,result){
+	    if(!error) {
+	      var displayedBalAsEth = result.toNumber() / 1000000000000000000;
+	      document.getElementById('accountBal').value=displayedBalAsEth;
+	    } else {
+	        console.error(error);
+	    }
+	  });
+	}
+
+
+</script>
+</body>
+</html>
