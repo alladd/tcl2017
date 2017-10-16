@@ -115,8 +115,23 @@ contract TraderMarket {
 
     }
 
-    function calcuateOrderBook( ) payable {
+    /**
+     정산 function
+     simulation about Proof of calc(in solidity)
+    */
+    function calcuateOrderBook( uint _calcuatedPrice) payable {
+        for( uint i = 0 ;  i < numOrderBook ; i++){
 
+            orderbooks[i].calcuatedPrice = _calcuatedPrice;
+            orderbooks[i].calcuatedTime = now;
+
+
+            //상승장 케이스
+            // qtyHedger = ( signedPrice * (orderbooks[_orderID].qtyTotalDeposit / 2) ) / calcuatedPrice
+            orderbooks[i].qtyHedger = ( orderbooks[i].signedPrice * (orderbooks[i].qtyTotalDeposit/2) ) /  orderbooks[i].calcuatedPrice;
+            orderbooks[i].qtyInvestor = orderbooks[i].qtyTotalDeposit- orderbooks[i].qtyHedger; 
+
+        }
     }
 
 
