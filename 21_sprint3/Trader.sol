@@ -22,8 +22,8 @@ contract TraderMarket {
       uint       calcuatedPrice;                         //      정산시세
       uint       calcuatedTime;                          //      정산시간
       uint       qtyTotalDeposit;                        //      총예치수량
-      int        qtyInvestor;                            //      투자자정산수량
-      int        qtyHedger;                              //      회피자정산수량
+      uint       qtyInvestor;                            //      투자자정산수량
+      uint       qtyHedger;                              //      회피자정산수량
     }
 
 
@@ -120,18 +120,32 @@ contract TraderMarket {
      simulation about Proof of calc(in solidity)
     */
     function calcuateOrderBook( uint _calcuatedPrice) payable {
+
         for( uint i = 0 ;  i < numOrderBook ; i++){
 
             orderbooks[i].calcuatedPrice = _calcuatedPrice;
             orderbooks[i].calcuatedTime = now;
 
+            if( orderbooks[i].signedPrice < orderbooks[i].calcuatedPrice){
 
-            //상승장 케이스
-            // qtyHedger = ( signedPrice * (orderbooks[_orderID].qtyTotalDeposit / 2) ) / calcuatedPrice
-            orderbooks[i].qtyHedger = ( orderbooks[i].signedPrice * (orderbooks[i].qtyTotalDeposit/2) ) /  orderbooks[i].calcuatedPrice;
-            orderbooks[i].qtyInvestor = orderbooks[i].qtyTotalDeposit- orderbooks[i].qtyHedger; 
+              //상승장 케이스
+              // Hedger의 eth수량 산출 : 체결당시 원화가치에 해당하는 eth수량을 산출
+              // Invester의 eth수량 = qtyTotalDeposit - 산출된 Hedgert수량
+              // qtyHedger = ( signedPrice * (orderbooks[_orderID].qtyTotalDeposit / 2) ) / calcuatedPrice
+              orderbooks[i].qtyHedger = ( orderbooks[i].signedPrice * (orderbooks[i].qtyTotalDeposit/2) ) /  orderbooks[i].calcuatedPrice;
+              orderbooks[i].qtyInvestor = orderbooks[i].qtyTotalDeposit- orderbooks[i].qtyHedger;
+
+            }else if( orderbooks[i].signedPrice > orderbooks[i].calcuatedPrice){
+
+              //상승장 케이스
+              // qtyHedger = ( signedPrice * (orderbooks[_orderID].qtyTotalDeposit / 2) ) / calcuatedPrice
+              orderbooks[i].qtyHedger = ( orderbooks[i].signedPrice * (orderbooks[i].qtyTotalDeposit/2) ) /  orderbooks[i].calcuatedPrice;
+              orderbooks[i].qtyInvestor = orderbooks[i].qtyTotalDeposit- orderbooks[i].qtyHedger;
+
+            }
 
         }
+
     }
 
 
@@ -153,25 +167,31 @@ contract TraderMarket {
                  orderbooks[_orderID].state                                   //      주문상태
                  ,orderbooks[_orderID].investor                                //      investor주문
                  ,orderbooks[_orderID].hedger                                  //      hedger주문
-                 ,orderbooks[_orderID].timelimit                               //      예치기간
                  ,orderbooks[_orderID].createdPrice                            //      생성시세
                  ,orderbooks[_orderID].createdTime                             //      생성시간
 
                 getOrderBookDetail
-                 ,orderbooks[_orderID].signedPrice                             //      체결시세
-                 ,orderbooks[_orderID].signedTime                              //      체결시세
+                 ,orderbooks[_orderID].timelimit                               //      예치기간
                  ,orderbooks[_orderID].calcuatedPrice                          //      정산시세
                  ,orderbooks[_orderID].calcuatedTime                           //      정산시간
                  ,orderbooks[_orderID].qtyTotalDeposit                         //      총예치수량
                  ,orderbooks[_orderID].qtyInvestor                             //      투자자정산수량
                  ,orderbooks[_orderID].qtyHedger                               //      회피자정산수량
     */
-    function getOrderBook(uint _orderID) public constant returns( TraderMarket.State, address, address , uint, uint, uint) {
-      return ( orderbooks[_orderID].state ,orderbooks[_orderID].investor ,orderbooks[_orderID].hedger ,orderbooks[_orderID].timelimit ,orderbooks[_orderID].createdPrice ,orderbooks[_orderID].createdTime );
+    function getOrderBook(uint _orderID) public constant returns( TraderMarket.State, address, address , uint, uint) {
+      return ( orderbooks[_orderID].state ,
+               orderbooks[_orderID].investor ,
+               orderbooks[_orderID].hedger  ,
+               orderbooks[_orderID].createdPrice ,
+               orderbooks[_orderID].createdTime );
      }
 
-     function getOrderBookDetail(uint _orderID) public constant returns(  uint, uint , uint, uint, uint, int, int) {
-       return ( orderbooks[_orderID].signedPrice ,orderbooks[_orderID].signedTime, orderbooks[_orderID].calcuatedPrice ,orderbooks[_orderID].calcuatedTime ,orderbooks[_orderID].qtyTotalDeposit,orderbooks[_orderID].qtyInvestor  ,orderbooks[_orderID].qtyHedger );
+     function getOrderBookDetail(uint _orderID) public constant returns(  uint, uint, uint, uint, uint) {
+       return ( orderbooks[_orderID].timelimit,
+                orderbooks[_orderID].calcuatedPrice ,
+                orderbooks[_orderID].calcuatedTime ,
+                orderbooks[_orderID].qtyTotalDeposit,
+                orderbooks[_orderID].qtyInvestor   );
       }
 
 
