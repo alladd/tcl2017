@@ -142,7 +142,7 @@ contract TraderMarket {
                     // Invester의 eth수량 = qtyTotalDeposit - 산출된 Hedgert수량
                     // qtyHedger = ( signedPrice * (orderbooks[_orderID].qtyTotalDeposit / 2) ) / calcuatedPrice
                     orderbooks[i].qtyFee          =   orderbooks[i].qtyTotalDeposit/100;          // 수수료1% 산출
-                    orderbooks[i].qtyTotalDeposit -=  orderbooks[i].qtyFee                   // 수수료 제외 전체 예치수량 재 산출
+                    orderbooks[i].qtyTotalDeposit -=  orderbooks[i].qtyFee;                   // 수수료 제외 전체 예치수량 재 산출
                     orderbooks[i].qtyHedger       = ( orderbooks[i].signedPrice * (orderbooks[i].qtyTotalDeposit/2) ) /  orderbooks[i].calcuatedPrice;
                     orderbooks[i].qtyInvestor     =   orderbooks[i].qtyTotalDeposit - orderbooks[i].qtyHedger;
 
@@ -154,8 +154,8 @@ contract TraderMarket {
 
 
                   // 3. 각 Account로 Ether Transfer
-                  orderbooks[i].hedger.Transfer( orderbooks[i].qtyHedger);      //hedger 전송
-                  orderbooks[i].investor.Transfer( orderbooks[i].qtyInvestor);  //investor 전송
+                  orderbooks[i].hedger.transfer( orderbooks[i].qtyHedger);      //hedger 전송
+                  orderbooks[i].investor.transfer( orderbooks[i].qtyInvestor);  //investor 전송
 
 
                   // 4. 상태변경
