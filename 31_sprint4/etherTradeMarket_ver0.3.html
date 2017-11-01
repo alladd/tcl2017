@@ -1,0 +1,579 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ko">
+<head>
+<meta http-equiv="Content-Type" content="text/html;charset=UTF-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+<title>Ethereum Market</title>
+<style>
+/* default */
+*{margin:0;font-size:13px;font-family:NanumGothic, Dotum, Gulim, AppleGothic, Sans-serif;}
+body {width:1400px;margin:0 auto;clear:both; position: relative;}
+h3 {padding-left:23px; background:url("./img/bg_h3.gif") no-repeat 0 2px; font-size:15px; font-weight:bold; padding-bottom:7px;color:#193d92; }
+h2 {padding-top:23px; font-size:18px; font-weight:bold; padding-bottom:7px;color:#193d92; }
+button { padding-top:4px; padding-bottom:3px}
+input {padding-left:5px; border:1px solid #ccc; height:14px;}
+ul li {list-style:none;float:left;margin:0 0 0 9px;}
+
+/* table */
+table, table td, table th{border-collapse:collapse;}
+table {width:100%; margin-bottom:10px;position:relative; width:100%; border-top:2px solid #3471b3;}
+thead th {color:#333; background-color:#f4f4f4; height:16px;}
+table td {padding:7px 10px 6px; vertical-align:middle;}
+table tr {padding:7px 10px 6px; border-bottom:1px solid #e0e0e0; vertical-align:middle;}
+table .first {border-left:0; text-align:center;}
+
+/* page */
+.paging {margin:15px 0 0 380px;text-align:center;position:absolute;height:28px;}
+.paging > ul li.on a,.paging > ul li a:hover {color:#226cbd;font-weight:bold;cursor:pointer;} 
+
+</style>
+<link rel="stylesheet" type="text/css" href="./jquery-ui-1.11.4.custom/jquery-ui.css" /><!-- 달력 -->
+</head>
+<body>
+<form name="baseFrm" >
+	<h2>이더리움 마켓에 오신것을 환영합니다.</h2><br/><br/><br/>
+	
+	<h3>Market OrderBook 목록</h3>
+	<table id="orderTable">			
+		<colgroup>
+			<col width="60" />
+			<col width="110"/>
+			<col width="100"/>
+			<col width="100"/>
+			<col width="90" />
+			<col width="200"/>
+			<col width="150"/>
+			<col width="150"/>
+			<col width="150"/>
+			<col width="150"/>
+		</colgroup>
+		<thead>
+			<tr>
+				<th rowspan="2">OrderID</th>
+				<th rowspan="2">상태</th>
+				<th rowspan="2">Investor</th>
+				<th rowspan="2">Hedger</th>
+				<th rowspan="2">예치Eth</th>
+				<th rowspan="2">정산목표일</th>
+				<th colspan="2">생성(체결)정보</th>
+				<th colspan="2">정산정보</th>
+			</tr>
+			<tr>
+				<th>일시</th>
+				<th>시세</th>
+				<th>일시</th>
+				<th>시세</th>
+			</tr>
+		</thead>
+		<tbody>								
+			<!--********** sample ************
+			<tr id="testData1">
+				<td class='first'>1</td>
+				<td>체결대기</td>
+				<td>0x63JAHVB940….</td>
+				<td><button onclick="signOrderBook(1, '332,550'); return false;">체결</button></td>
+				<td>100</td>
+				<td>2017.10.28</td>
+				<td>2017.10.11 14:30</td>
+				<td>332,550</td>
+				<td></td>
+				<td></td>
+			</tr>-->
+		</tbody>
+	</table>		
+	<div class="paging">
+		<ul id="pageUl"></ul>
+	</div>
+	
+	<br/><br/>
+
+	<h3>내 지갑정보</h3>		
+	<table>
+		<colgroup>
+			<col width="15%"/>                 
+			<col width="35%"/>
+			<col width="15%"/>                 
+			<col width="35%"/>
+		</colgroup>
+		<tr>
+			<th>주소</th>
+			<td>0x28JAHVK….</td>
+			<th>잔고</th>
+			<td>356 Eth(124,600,000원) </td>
+		</tr>
+	</table>
+
+	<h3>신규 OrderBook 생성</h3>		
+	<table>		
+		<colgroup>
+			<col width="5%"/>
+			<col width="15%"/>
+			<col width="23%"/>
+			<col width="23%" />
+			<col width="23%" />
+			<col width="11%" />
+		</colgroup>
+		<tr>
+			<td></td>
+			<td>
+			Option &nbsp;&nbsp;
+			<select id="type">
+				<option value="0">Investor</option>
+				<option value="1">Hedger</option>
+			</select>
+			</td>
+			<td>정산목표일 <input type="text" id="dueDate" size="10" edit="false"/></td>
+			<td>주문수량 <input type="text" id="cnt" size="10"/></td>
+			<td>현시세 <input type="text" id="curPrice" size="10"/></td>
+			<td><button onclick="createOrderBook();return false;">신규주문</button></td>
+		</tr>
+	</table>
+
+	<h3>ETH/KRW last Price</h3>
+	<table>
+	  <tr align="center">
+		<td> 거래소 </td>
+		<td> korbit</td>
+		<td> coinone </td>
+		<td> bitthumb </td>
+		<td> 평균가(ETH) </td>
+				<td> <button onclick="updateCurrentPrice(); return false;">시세 가져오기</button> </td>
+
+	  </tr>
+	  <tr align="center">
+		<td> Lastprice </td>
+		<td> <input type="text" id="eth_price_korbit"> </td>
+		<td> <input type="text" id="eth_price_coinone"> </td>
+		<td> <input type="text" id="eth_price_bitthumb"> </td>
+		<td> <input type="text" id="eth_price_average"> </td>
+		<td> <input type="text" id="eth_price_lastupdated"> </td>
+	  </tr>
+	</table>
+
+	<h3>나의 OrderBook 목록</h3>		
+	<table id="myOrderTable">			
+		<colgroup>
+			<col width="60"/>
+			<col width="110"/>
+			<col width="100" />
+			<col width="100" />
+			<col width="90" />
+			<col width="110" />
+			<col width="150"/>
+			<col width="150"/>
+			<col width="150" />
+			<col width="150" />
+		</colgroup>
+		<thead>
+			<tr>
+				<th rowspan="2">OrderID</th>
+				<th rowspan="2">상태</th>
+				<th rowspan="2">Investor</th>
+				<th rowspan="2">Hedger</th>
+				<th rowspan="2">예치Eth</th>
+				<th rowspan="2">정산목표일</th>
+				<th colspan="2">생성(체결)정보</th>
+				<th colspan="2">정산정보</th>
+			</tr>
+			<tr>
+				<th>일시</th>
+				<th>시세</th>
+				<th>일시</th>
+				<th>시세</th>
+			</tr>
+		</thead>
+		<tbody>								
+			<!-- ********** sample ************ -->
+			<tr id="testData1">
+				<td class='first'>1</td>
+				<td>체결대기</td>
+				<td>0x63JAHVB940….</td>
+				<td><button onclick="cancelOrderBook(1); return false;">취소</button></td>
+				<td>100</td>
+				<td>2017.10.28</td>
+				<td>2017.10.11 14:30</td>
+				<td>332,550</td>
+				<td></td>
+				<td></td>
+			</tr>				
+		</tbody>
+	</table>
+	<button onclick="calcuateOrderBook();return false;">정산</button>
+</form>
+<script type="text/javascript" src="jquery-1.7.1.js"></script>
+<script type="text/javascript" src="./jquery-ui-1.11.4.custom/jquery-ui.min.js"></script>
+<script>
+	//전역변수 선언
+	var accountAddr = "";	
+	var contractAddress = '0x006864f674715d8b86855273a0e4cc05f73d8f35';
+	var simpleStorageContract;
+	var simpleStorage;
+	
+	//web3 Instance생성 및 initail Function Cal
+	window.addEventListener('load', function() {
+		// Checking if Web3 has been injected by the browser (Mist/MetaMask)
+		if (typeof web3 !== 'undefined') {
+			// Use Mist/MetaMask's provider
+			window.web3 = new Web3(web3.currentProvider);
+		} else {
+			console.log('No web3? You should consider trying MetaMask!')
+			// fallback - use your fallback strategy (local node / hosted node + in-dapp id mgmt / fail)
+			window.web3 = new Web3(new Web3.providers.HttpProvider("http://localhost:8545"));
+		}
+
+		simpleStorageContract = web3.eth.contract([{"constant":true,"inputs":[{"name":"_orderID","type":"uint256"}],"name":"getOrderBookDetail","outputs":[{"name":"","type":"uint256"},{"name":"","type":"uint256"},{"name":"","type":"uint256"},{"name":"","type":"uint256"},{"name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[{"name":"_option","type":"uint8"},{"name":"_timelimit","type":"uint256"},{"name":"_signedPrice","type":"uint256"}],"name":"createOrderBook","outputs":[{"name":"_orderID","type":"uint256"}],"payable":true,"stateMutability":"payable","type":"function"},{"constant":true,"inputs":[{"name":"","type":"uint256"}],"name":"orderbooks","outputs":[{"name":"orderID","type":"uint256"},{"name":"state","type":"uint8"},{"name":"investor","type":"address"},{"name":"hedger","type":"address"},{"name":"timelimit","type":"uint256"},{"name":"signedPrice","type":"uint256"},{"name":"signedTime","type":"uint256"},{"name":"calcuatedPrice","type":"uint256"},{"name":"calcuatedTime","type":"uint256"},{"name":"qtyTotalDeposit","type":"uint256"},{"name":"qtyInvestor","type":"uint256"},{"name":"qtyHedger","type":"uint256"},{"name":"qtyFee","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[{"name":"_calcuatedPrice","type":"uint256"}],"name":"calcuateOrderBook","outputs":[],"payable":true,"stateMutability":"payable","type":"function"},{"constant":false,"inputs":[{"name":"_orderID","type":"uint256"},{"name":"_signedPrice","type":"uint256"}],"name":"signOrderBook","outputs":[{"name":"","type":"uint256"}],"payable":true,"stateMutability":"payable","type":"function"},{"constant":true,"inputs":[{"name":"_orderID","type":"uint256"}],"name":"getOrderBook","outputs":[{"name":"","type":"uint8"},{"name":"","type":"address"},{"name":"","type":"address"},{"name":"","type":"uint256"},{"name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[],"name":"getOrderBookCount","outputs":[{"name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[{"name":"_orderID","type":"uint256"}],"name":"getOrderBookDetail_2nd","outputs":[{"name":"","type":"uint256"},{"name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"inputs":[],"payable":false,"stateMutability":"nonpayable","type":"constructor"},{"anonymous":false,"inputs":[{"indexed":false,"name":"_msg","type":"string"},{"indexed":false,"name":"_qty","type":"uint256"}],"name":"commonMsg","type":"event"}]);
+
+		simpleStorage = simpleStorageContract.at(contractAddress);	
+	});
+
+		
+
+	//시작시 기동
+	window.onload = function() {
+		getData();		//SOL data가져오기
+		setCalendar();	//달력삽입
+		pageSet();		//Page Setting
+		test(0);
+	}
+
+	//달력삽입
+	function setCalendar(){			
+		$( "#dueDate" ).datepicker({
+			dateFormat: 'yy-mm-dd',
+			prevText: '이전 달',
+			nextText: '다음 달',
+			monthNames: ['1월','2월','3월','4월','5월','6월','7월','8월','9월','10월','11월','12월'],
+			monthNamesShort: ['1','2','3','4','5','6','7','8','9','10','11','12'],
+			dayNames: ['일요일','월요일','화요일','수요일','목요일','금요일','토요일'],
+			dayNamesShort: ['일','월','화','수','목','금','토'],
+			dayNamesMin: ['일','월','화','수','목','금','토'],
+			showMonthAfterYear: true,
+			yearSuffix: '년'
+		});
+	}
+
+	//SOL data가져오기
+	function getData(){		
+		simpleStorage.getOrderBookCount(function(e,r){
+			totalCount = r;
+
+			for(var i=0; i< totalCount; i++){
+				simpleStorage.getOrderBook(i, function(e,r){
+					addOrder(i, r[0], r[1], r[2], r[3], unixTimeStampToDate(r[4]),1,2,3,4);			
+				});
+			}
+		});
+		
+	}
+
+	function test(index){
+		setTimeout(function(){
+			if(index < totalCount){
+				simpleStorage.getOrderBookDetail(index, function(e,r){
+					modOrder(index+2, r[0], r[1], r[2], r[3]);				
+				});
+				test(index+1)
+			}
+		}, 500);
+	}
+
+	function modOrder(index, r0, r1, r2, r3){
+		orderTable.rows[index].cells[6].innerText = r0;
+		orderTable.rows[index].cells[7].innerText = r1;
+		orderTable.rows[index].cells[8].innerText = r2;
+		orderTable.rows[index].cells[9].innerText = r3;
+	}
+
+	//정산
+	function calcuateOrderBook(){
+		simpleStorage.calcuateOrderBook(2222222, function(e,r){
+			alert("정산이 정상적으로 이뤄졌습니다.");
+		});
+	}
+
+	//주문 List에 행 추가
+	function addOrder(orderId, state, investor, hedger, eth, dueDate, curDate, curPrice, signDate, signPrice)
+	{
+		var rowIndex = $("#orderTable tr").length-1;
+
+		//if(state == 0){
+			
+		//}
+
+		if( investor.substring(0, 4) == "0x00"){
+			investor = "<button onclick='signOrderBook("+orderId+", "+eth+"); return false;'>체결하기</button>";
+		}
+
+		if( hedger.substring(0, 4) == "0x00"){
+			hedger = "<button onclick='signOrderBook("+orderId+", "+eth+"); return false;'>체결하기</button>";
+		}
+
+		var addRow = "<tr class='trStyle' id='testData"+rowIndex+"'><td class='first'>";
+		addRow += rowIndex+"</td><td>";
+		addRow += state+"</td><td>";
+		addRow += investor+"</td><td>";
+		addRow += hedger+"</td><td>";
+		addRow += eth+"</td><td>";
+		addRow += dueDate+"</td><td>";
+		addRow += curDate+"</td><td>";
+		addRow += curPrice+"</td><td>";
+		addRow += signDate+"</td><td>";
+		addRow += signPrice+"</td>";		
+		$("#orderTable").append(addRow);
+	}
+
+	//주문생성
+	function createOrderBook(){
+		
+		var type = $("#type").val();
+		var dueDate = $("#dueDate").val();
+		var cnt = $("#cnt").val();
+		var curPrice = $("#curPrice").val();
+		dueDate = dateToUnixTimestamp(dueDate);
+
+		//solidity createOrderBook 주문생성
+		simpleStorage.createOrderBook(type, dueDate, curPrice, { 
+					    from: "0x2e7Db3ac4949ee0352EA4f1E65b1dFCfC0A4C2B0"
+						, to: contractAddress
+					    , value: web3.toWei(0.1, 'ether') 
+				 }, function(e,r){
+
+					 if (!e) {
+						 alert("주문이 정상적으로 생성되었습니다.");
+					 }
+			
+		});
+	}
+
+	//dateToUnix
+	function dateToUnixTimestamp(dateValue){
+		newDate = new Date(dateValue.substring(5,10)+"-"+dateValue.substring(0,4));
+		return Math.round(newDate.getTime() / 1000.0);
+	}
+	
+	//unixToDate
+	function unixTimeStampToDate( unixTimeStampValue){
+		var date = new Date( unixTimeStampValue * 1000);
+		var outDate = "";
+
+		outDate = date.getFullYear() + "-" + (date.getMonth()+1) + "-" +date.getDate();
+		return outDate;
+	}
+
+	//취소
+	function cancelOrderBook(orderId){
+		alert("주문취소번호 : " + orderId+ "\nSOLIDITY - cancelOrderBook 호출");
+		//solidity cancelOrderBook 취소
+		//cancelOrderBook(orderId, signedPrice);
+	}
+
+	//체결
+	function signOrderBook(orderId, signedPrice){	
+		//signedPrice = signedPrice.replace(",","");
+		
+		orderId = 5;
+		//solidity signOrderBook 체결
+		simpleStorage.signOrderBook(orderId, signedPrice, function(e,r){
+			alert("주문이 정상적으로 체결되었습니다.");
+		});
+
+	}
+
+	//ether LINK 
+	function getEtherscanLink(addr) {
+	  return '<a target="_blank" href=https://testnet.etherscan.io/address/' + addr + '>' + addr +'</a>';
+	}
+
+
+
+
+
+
+	/**
+	 거래소 시세 변수 , function---------------------------------------------------
+
+	 CORS문제를 회피하기 위해 크롬 플러그인 설치가 필요(Allow-Control-Allow-Origin)
+	 미 설치시 코빗 시세 fetch불가, CORS이슈는 추후 처리
+	     1. 코빗
+	     BTC : https://api.korbit.co.kr/v1/ticker/detailed
+	     ETH : https://api.korbit.co.kr/v1/ticker/detailed?currency_pair=eth_krw
+
+	     2. 빗썸
+	     BTC : https://api.bithumb.com/public/ticker/BTC
+	     ETH : https://api.bithumb.com/public/ticker/ETH
+
+	     3. POLONIEX
+	     https://poloniex.com/public?command=returnTicker
+
+	     4. BITTREX
+	     ETH : https://bittrex.com/api/v1.1/public/getmarketsummary?market=btc-eth
+
+	     5. ALLCOIN
+	     ETH : https://api.allcoin.com/api/v1/ticker?symbol=eth_btc
+
+	     6. LIQUI
+	     ETH : https://api.liqui.io/api/3/ticker/eth_btc
+
+	     7. COINMARKETCAP
+	     http://coinmarketcap-nexuist.rhcloud.com/api/eth
+
+	     8. Coinone
+	     https://api.coinone.co.kr/ticker?currency=eth
+	 */
+	var priceKorbit;   //last
+	var priceBitthumb; //closing_price
+	var priceCoinone;  //last
+	var priceAverage = 0;
+	var lastChangeDate;
+
+	var urlKorbit       = "https://api.korbit.co.kr/v1/ticker/detailed?currency_pair=eth_krw";
+	var urlBitthumb     = "https://api.bithumb.com/public/ticker/ETH";
+	var urlCoinone      = "https://api.coinone.co.kr/ticker?currency=eth";
+
+
+	function updateCurrentPrice() {
+	  getCurrentPriceEth( urlKorbit);
+	  getCurrentPriceEth( urlBitthumb);
+	  getCurrentPriceEth( urlCoinone);
+	}
+
+	function getAverageCurrentPrice(){
+	  priceAverage = Math.round( ( Number(priceKorbit) + Number(priceBitthumb) + Number(priceCoinone) ) / 3 ) ;
+		lastChangeDate = new Date();
+	  document.getElementById('eth_price_average').value = priceAverage;
+	  //document.getElementById('initial_price').value = priceAverage;
+		document.getElementById('eth_price_lastupdated').value = lastChangeDate.toLocaleString();
+	}
+
+	function getCurrentPriceEth(urlString) {
+	   $.support.cors = true;
+	   $.ajax({
+	   url: urlString,
+	   type: "GET",
+	   //contentType: "application/json; charset=utf-8",
+	   contentType: "application/x-www-form-urlencoded",
+	   dataType: 'json',
+	   success: function(returndata) {
+	     console.log("success called" + urlString);
+
+	     if( urlString == urlKorbit) {
+	        priceKorbit = returndata.last;
+	        document.getElementById('eth_price_korbit').value  = priceKorbit;
+	     }else if( urlString == urlCoinone) {
+	        priceCoinone = returndata.last;
+	        document.getElementById('eth_price_coinone').value  = priceCoinone;
+	     }else if( urlString == urlBitthumb) {
+	        priceBitthumb = returndata.data.closing_price;
+	        document.getElementById('eth_price_bitthumb').value  = priceBitthumb;
+	     }
+
+	     if( priceKorbit != NaN &&
+	         priceCoinone != NaN &&
+	         priceBitthumb != NaN
+	     ){
+	       getAverageCurrentPrice();
+	     }
+
+	   },
+	   error: function(xhr, status, error) {
+	      //Error handling code
+	      alert('getCurrentPriceEth() Failed' + status );
+	   }
+
+	 });
+	 }
+
+	/*
+	  시세가져오기 관련 function end-----------------------------------------------
+	*/
+
+/* page function start ============================================ */
+
+	var pageSize	= 10;	//페이지당 size
+	var pageCount	= 0;	//페이지 수
+	var totalCount	= 0;	//Order 총 건수
+	var currentPage = 1;	//현재 있는 페이지
+
+	//Page setting
+	function pageSet(){
+		pageCount	= Math.ceil(totalCount / pageSize);
+		drawPage();
+		$("#page1").css("font-weight", "bold");
+	}
+
+	//다음페이지
+	function goNext(){
+		currentPage += 10;
+		drawPage();
+		goPage(currentPage);
+	}
+
+	//이전페이지
+	function goPrev(){
+		currentPage -= 10;
+		drawPage();
+		goPage(currentPage);
+	}
+
+	//페이지그리기
+	function drawPage(){	
+		$(".paging > ul").empty();
+
+		if(currentPage > 1){
+			$(".paging > ul").append("<li><B><a onclick='goPrev()'>이전</a></B></li>");
+		}
+
+		for(var i=currentPage; i<=pageCount; i++){
+			var pageInf = "&nbsp;<li><a onclick='goPage("+i+")' id='page"+i+"' class='page'>" + i + "</a></li>";
+			$(".paging > ul").append(pageInf);
+
+			if((i == (currentPage+9)) && (i != pageCount)){
+				$(".paging > ul").append("<li><B><a onclick='goNext()'>다음</a></B></li>");
+				break;
+			}
+		}	
+	}
+
+	//page이동
+	function goPage(page){
+		$("#orderTable > tbody").empty();
+		$(".page").css("font-weight", "normal");
+		$("#page"+page).css("font-weight", "bold");
+		
+		//해당 페이지 번호를 보내고 그 해당 OrderID값 들의 주문원장을 가져옴
+		
+		//sample***************************
+		for(var i=0; i<page; i++){
+			//getSolidity();
+			//해당 값의 parameter setting
+			addOrder(i, i+1, i+2,3,4,5,6,7,8,9);
+		}
+	}
+
+/* page function end ============================================ */
+
+	//체결-취소에 data 가져오기 <제거됨>
+	function loadData(idx){
+		var frm = document.baseFrm;
+		var cnt = 1;
+		$('#testData'+idx+' td').each(function(index, item){
+			if(cnt < 9){
+				$("#inf" + cnt).text($(item).text());
+				cnt++;
+			}
+		})
+	}
+
+	//<제거됨>
+	function getResult(){
+		simpleStorage.getOrderBook(0, function(e,r){
+			alert(r[0]+","+r[1]+","+r[2]+","+r[3]+","+r[4]+","+r[5]);
+		});
+
+		simpleStorage.getOrderBookDetail(0, function(e,r){
+			alert(r[0]+","+r[1]+","+r[2]+","+r[3]+","+r[4]+","+r[5]);
+		});
+	}
+</script>
+</body>
+</html>
